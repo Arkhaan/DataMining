@@ -30,7 +30,9 @@ for file in json_files:
 
         #On entre la proteine dans la table de faits :
         
-        fact_table.write(k + ";" + organisms[count] + "\n")
+        fact_table.write(k + "\n")
+
+        proteins[k]["organism"] = organism[count]
         
         
         analysed_seq = ProteinAnalysis(my_seq)
@@ -38,6 +40,11 @@ for file in json_files:
             proteins[k]["weight"] = analysed_seq.molecular_weight()
         except :
             proteins[k]["weight"] = None
+            print "pas de weight"
+        try :
+            proteins[k]["size"] = len(my_seq)
+        except :
+            proteins[k]["size"] = None
             print "pas de weight" 
         try :
             proteins[k]["isoelectric point"] = analysed_seq.isoelectric_point()
@@ -54,16 +61,46 @@ for file in json_files:
         except :
             proteins[k]["instability index"] = None
             print "pas de instability index"
+        try :
+            secondary = analysed_seq.secondary_structure_fraction()
+            proteins[k]["helix"] = secondary[0]
+            proteins[k]["turn"] = secondary[1]
+            proteins[k]["sheet"] = secondary[2]
+            
+        except :
+            proteins[k]["helix"] = None
+            proteins[k]["turn"] = None
+            proteins[k]["sheet"] = None
+            print "pas de secondary structures"
 
 csv =open("sequence_table.csv", "w")
 csv.write("id_protein;seq;weight;isoelectric point;aromaticity;instability index\n")
 for key in proteins.keys():
     id_protein = key
+    organism = proteins[key]["organism"]
     seq = proteins[key]["seq"]
     weight = proteins[key]["weight"]
+    size = proteins[key]["size"]
     isoelectric_point = proteins[key]["isoelectric point"]
     aromaticity = proteins[key]["aromaticity"]
     instability_index = proteins[key]["instability index"]
-    row = str(id_protein) + ";" + str(seq) + ";" + str(weight) + ";" + str(isoelectric_point) + ";" + str(aromaticity) + ";" + str(instability_index) + "\n"
+    helix = proteins[key]["helix"]
+    turn = proteins[key]["turn"]
+    sheet = proteins[key]["sheet"]
+    row = str(id_protein) + ";" str(organism) + ";" + str(seq) + ";" + str(weight) + ";" + str(size) + ";" + str(isoelectric_point) + ";" + str(aromaticity) + ";" + str(instability_index) + ";" + str(helix) + ";" + str(turn) + ";" + str(sheet) + "\n"
     csv.write(row)
 
+
+'''
+Hierarchy of parameters
+
+seq
+helix
+turn
+sheet
+isoelectric point
+instability index
+aromaticity
+weight
+size
+'''
