@@ -1,0 +1,6 @@
+# Temporary gedit files
+############################
+**/*.*~
+**/*.old
+
+data_warehouse
