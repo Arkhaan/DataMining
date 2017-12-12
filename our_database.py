@@ -32,7 +32,7 @@ for file in json_files:
         
         fact_table.write(k + "\n")
 
-        proteins[k]["organism"] = organism[count]
+        proteins[k]["organism"] = organisms[count]
         
         
         analysed_seq = ProteinAnalysis(my_seq)
@@ -74,7 +74,7 @@ for file in json_files:
             print "pas de secondary structures"
 
 csv =open("sequence_table.csv", "w")
-csv.write("id_protein;seq;weight;isoelectric point;aromaticity;instability index\n")
+csv.write("id_protein;seq;weight;isoelectric point;aromaticity;instability index;helix;turn;sheet\n")
 for key in proteins.keys():
     id_protein = key
     organism = proteins[key]["organism"]
@@ -87,7 +87,7 @@ for key in proteins.keys():
     helix = proteins[key]["helix"]
     turn = proteins[key]["turn"]
     sheet = proteins[key]["sheet"]
-    row = str(id_protein) + ";" str(organism) + ";" + str(seq) + ";" + str(weight) + ";" + str(size) + ";" + str(isoelectric_point) + ";" + str(aromaticity) + ";" + str(instability_index) + ";" + str(helix) + ";" + str(turn) + ";" + str(sheet) + "\n"
+    row = str(id_protein) + ";" + str(organism) + ";" + str(seq) + ";" + str(weight) + ";" + str(size) + ";" + str(isoelectric_point) + ";" + str(aromaticity) + ";" + str(instability_index) + ";" + str(helix) + ";" + str(turn) + ";" + str(sheet) + "\n"
     csv.write(row)
 
 
