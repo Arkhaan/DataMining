@@ -31,8 +31,8 @@ def build_line(sequences, seqA, matrix_type='square'):
 
 
 
-csv_name = 'mini_table10000.csv'
-matrix_name = 'mini_table10000_alignment_upper_right.csv'
+csv_name = 'mini_table1000.csv'
+matrix_name = 'mini_table1000_alignment_upper_right.csv'
 
 csvfile = open(csv_name, 'r')
 matrixfile = open(matrix_name, 'w')
