@@ -79,6 +79,7 @@ def openFile(name):
 
 def multicluster(data, parameters):
     branches = [data.keys()]
+    count = 0
     for parameter in parameters:
         result = []
         for branch in branches:
@@ -90,17 +91,54 @@ def multicluster(data, parameters):
                     except:
                         pass
             resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', False)
+
             branch1, branch2 = cut(resultGlobal)
             result.append(branch1)
             result.append(branch2)
         branches = result
     return branches
 
-data = openFile("mini_table.csv")
-result = multicluster(data, ['weight', 'aromaticity'])
+def testRecursif(data, result = [], parameters = []):
+    if len(parameters) == 0:
+        return result
+    if result == []:
+        branches = [data.keys()]
+    else:
+        branches = [result]
+        result = []
+    #print branches
+    for branch in branches:
+        #print branch
+        toCluster = []
+        listID = []
+        for number in data:
+            if number in branch:
+                try:
+                    toCluster.append([data[number][parameters[-1]]])
+                    listID.append(number)
+                except:
+                    pass
+        resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', False)
+        branch1, branch2 = cut(resultGlobal)
+        tmp = []
+        for element in branch1:
+            tmp.append(listID[element])
+        result.append(tmp)
+        tmp = []
+        for element in branch2:
+            tmp.append(listID[element])
+        result.append(tmp)
+        # print result
+        # print "1 tour de recursive"
+        # print parameters
+        result [0] = testRecursif(data, result[0], parameters[:-1])
+        result [1] = testRecursif(data, result[1], parameters[:-1])
+    return result
+
+
+data = openFile("testTable.csv")
+result = testRecursif(data, [], ['weight', 'aromaticity', 'isoelectric point'])
 print result
-for n in result:
-    print len(n)
 
             # if len(branches) == 0:
             #     for number in data:
