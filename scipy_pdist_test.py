@@ -1,5 +1,5 @@
 from scipy.spatial.distance import pdist
-from scipy.cluster.hierarchy import dendrogram, linkage, to_tree
+from scipy.cluster.hierarchy import dendrogram, linkage, to_tree, cut_tree
 from matplotlib import pyplot as plt
 import csv
 import numpy as np
@@ -43,25 +43,37 @@ paramarray= [[1,5,6],[2,4,4],[9,1,8]]
 def clusterisation(data, metric, clustertype, plot = True):
     matrix_distance = pdist(data, metric= metric)
     Z = linkage(matrix_distance, clustertype)
+    R = dendrogram(
+        Z,
+        leaf_rotation=90.,  # rotates the x axis labels
+        leaf_font_size=8.,  # font size for the x axis labels
+    )
 
     if plot:
         plt.figure(figsize=(25, 10))
         plt.title('Hierarchical Clustering Dendrogram')
         plt.xlabel('sample index')
         plt.ylabel('distance')
-        dendrogram(
-            Z,
-            leaf_rotation=90.,  # rotates the x axis labels
-            leaf_font_size=8.,  # font size for the x axis labels
-        )
         plt.show()
-    return Z
+    clusters = cut_tree(Z, len(set(R["color_list"]))-1)
 
-def cut(tree):
+    return clusters
+
+def cut(tree, distance):
     root, nodelist = to_tree(tree, rd=True)
-    idsleft = root.get_left().pre_order(lambda x: x.id)
-    idsright = root.get_right().pre_order(lambda x: x.id)
-    return idsleft, idsright
+
+    branches = []
+    findBranches(root, distance, branches)
+    return branches
+
+def findBranches(root, distance, nodes):
+    if root.dist < distance:
+        nodes.append(root.pre_order(lambda x: x.id))
+    else:
+        leftSide = root.get_left()
+        rightSide = root.get_right()
+        findBranches(leftSide, distance, nodes)
+        findBranches(rightSide, distance, nodes)
 
 def openFile(name):
     fl = open(name, 'r')
@@ -77,26 +89,27 @@ def openFile(name):
         count += 1
     return array
 
-def multicluster(data, parameters):
-    branches = [data.keys()]
-    count = 0
-    for parameter in parameters:
-        result = []
-        for branch in branches:
-            toCluster = []
-            for number in data:
-                if number in branch:
-                    try:
-                        toCluster.append([data[number][parameter]])
-                    except:
-                        pass
-            resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', False)
-
-            branch1, branch2 = cut(resultGlobal)
-            result.append(branch1)
-            result.append(branch2)
-        branches = result
-    return branches
+# def multicluster(data, parameters):
+#     branches = [data.keys()]
+#     count = 0
+#     for parameter in parameters:
+#         result = []
+#         for branch in branches:
+#             toCluster = []
+#             for number in data:
+#                 if number in branch:
+#                     try:
+#                         toCluster.append([data[number][parameter]])
+#                     except:
+#                         pass
+#             resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', True)
+#
+#
+#             branch1, branch2 = cut(resultGlobal)
+#             result.append(branch1)
+#             result.append(branch2)
+#         branches = result
+#     return branches
 
 def testRecursif(data, result = [], parameters = []):
     if len(parameters) == 0:
@@ -118,32 +131,36 @@ def testRecursif(data, result = [], parameters = []):
                     listID.append(number)
                 except:
                     pass
+        if len(listID) < 3:
+            return listID
         resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', False)
-        branch1, branch2 = cut(resultGlobal)
-        tmp = []
-        for element in branch1:
-            tmp.append(listID[element])
-        result.append(tmp)
-        tmp = []
-        for element in branch2:
-            tmp.append(listID[element])
-        result.append(tmp)
+        # print("Quelle distance vous semble optimale?")
+        # distance = float(raw_input())
+        # newBranches = cut(resultGlobal, distance)
+        # for newBranch in newBranches:
+        #     tmp = []
+        #     for element in newBranch:
+        #         tmp.append(listID[element])
+        #     result.append(tmp)
         # print result
         # print "1 tour de recursive"
         # print parameters
-        result [0] = testRecursif(data, result[0], parameters[:-1])
-        result [1] = testRecursif(data, result[1], parameters[:-1])
-    return result
+        Clusters = {}
+        for i in range(0, len(resultGlobal)):
+            if resultGlobal[i][0] in Clusters:
+                Clusters[resultGlobal[i][0]].append(listID[i])
+            else:
+                Clusters[resultGlobal[i][0]] = [listID[i]]
+        for key in Clusters.keys():
+            result.append(Clusters[key])
+        newResult = []
+        for r in result:
+            newResult.append(testRecursif(data, r, parameters[:-1]))
+            #result [1] = testRecursif(data, result[1], parameters[:-1])
+    return newResult
 
 
 data = openFile("testTable.csv")
-result = testRecursif(data, [], ['weight', 'aromaticity', 'isoelectric point'])
+#result = testRecursif(data, [], ['weight', 'aromaticity', 'isoelectric point'])
+result = testRecursif(data, [], ['size', 'weight', 'aromaticity', 'instability index', 'isoelectric point', 'sheet', 'turn', 'helix'])
 print result
-
-            # if len(branches) == 0:
-            #     for number in data:
-            #         try:
-            #             toCluster.append([data[number][parameter]])
-            #         except:
-            #             pass
-            # else:
