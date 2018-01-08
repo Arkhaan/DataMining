@@ -25,7 +25,7 @@ def build_matrix_line(dico_weight, csv_name):
         #     dico_weight.append([float(dico_cible['weight']), float(dico_cible["isoelectric point"])])
 
         try:
-            dico_weight.append([float(dico_cible['weight']), float(dico_cible["isoelectric point"])])
+            dico_weight.append([float(dico_cible['isoelectric point']), float(dico_cible["aromaticity"])])
         except:
             pass
 
@@ -51,6 +51,8 @@ centers = [[1, 1], [-1, -1], [1, -1]]
 X, labels_true = make_blobs(n_samples=750, centers=centers, cluster_std=0.4,
                             random_state=0)
 X = StandardScaler().fit_transform(X)
+single(y) 	Perform single/min/nearest linkage on the condensed distance matrix y.
+complete(y) 	Perform complete/max/farthest point
 #print labels_true
 
 X = []
@@ -59,7 +61,7 @@ X = StandardScaler().fit_transform(X)
 import seaborn as sns
 # #############################################################################
 # Compute DBSCAN
-db = DBSCAN(min_samples=15, eps=0.1).fit(X)
+db = DBSCAN(min_samples=2, eps=0.1).fit(X)
 core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
 core_samples_mask[db.core_sample_indices_] = True
 labels = db.labels_
