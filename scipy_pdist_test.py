@@ -127,7 +127,8 @@ def testRecursif(data, result = [], parameters = []):
         for number in data:
             if number in branch:
                 try:
-                    toCluster.append([data[number][parameters[-1]]])
+                    print type(data[number][parameters[-1]])
+                    toCluster.append([float(data[number][parameters[-1]])])
                     listID.append(number)
                 except:
                     pass
@@ -160,7 +161,10 @@ def testRecursif(data, result = [], parameters = []):
     return newResult
 
 
-data = openFile("testTable.csv")
-#result = testRecursif(data, [], ['weight', 'aromaticity', 'isoelectric point'])
-result = testRecursif(data, [], ['size', 'weight', 'aromaticity', 'instability index', 'isoelectric point', 'sheet', 'turn', 'helix'])
-print result
+data = openFile("minitest.csv")
+result = testRecursif(data, [], ['weight', 'aromaticity', 'isoelectric point'])
+#result = testRecursif(data, [], ['size', 'weight', 'aromaticity', 'instability index', 'isoelectric point', 'sheet', 'turn', 'helix'])
+
+output = open("mini.txt", "w")
+output.write(str(result) + ";")
+output.close()

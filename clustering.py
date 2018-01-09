@@ -28,13 +28,17 @@ def openFile(name):
     reader = csv.DictReader(fl,  delimiter=';')
     array = {}
     count = 0
+    NAs = 0
     for row in reader:
         dic = {}
         for k in row.keys():
             if row[k] != "NA":
                 dic[k] = row[k]
+            else :
+                NAs += 1
         array[count] = dic
         count += 1
+    fl.close()
     return array
 
 def testRecursif(data, result = [], parameters = []):
@@ -57,6 +61,8 @@ def testRecursif(data, result = [], parameters = []):
                     pass
         if len(listID) < 3:
             return listID
+        # print("Clusterisation pour parametre :")
+        # print(parameters[-1])
         resultGlobal = clusterisation(toCluster, 'euclidean', 'ward', False)
         Clusters = {}
         for i in range(0, len(resultGlobal)):
@@ -72,5 +78,9 @@ def testRecursif(data, result = [], parameters = []):
     return newResult
 
 
-data = openFile("testTable.csv")
+data = openFile("minitest.csv")
 result = testRecursif(data, [], ['size', 'weight', 'aromaticity', 'instability index', 'isoelectric point', 'sheet', 'turn', 'helix'])
+
+output = open("mini.txt", "w")
+output.write(str(result) + ";")
+output.close()
